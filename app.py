@@ -1,7 +1,6 @@
 import sqlite3
 from flask import Flask, render_template
 
-
 app = Flask(__name__)
 DATABASE = r"C:\Users\18217\OneDrive - Wellington College\13DTS\Smile\smile.db"
 
@@ -40,6 +39,16 @@ def render_menu_page():
 @app.route('/contact')
 def render_contact_page():
     return render_template('contact.html')
+
+
+@app.route('/login', methods=["GET", "POST"])
+def render_login_page():
+    return render_template('login.html')
+
+
+@app.route('/signup', methods=["GET", "POST"])
+def render_signup_page():
+    return render_template('signup.html')
 
 
 app.run(host='0.0.0.0', debug=True)
