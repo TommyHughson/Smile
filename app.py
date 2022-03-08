@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect
 
 app = Flask(__name__)
 DATABASE = r"C:\Users\18217\OneDrive - Wellington College\13DTS\Smile\smile.db"
@@ -48,6 +48,28 @@ def render_login_page():
 
 @app.route('/signup', methods=["GET", "POST"])
 def render_signup_page():
+    if request.method == "POST":
+        print(request.form)
+        fname = request.form.get('fname').title().strip()
+        lname = request.form.get('lname').title().strip()
+        email = request.form.get('email').lower().strip()
+        password = request.form.get('password')
+        password2 = request.form.get('password2')
+
+        # check whether the passwords match
+        if password != password2:
+            return redirect('signup?error=Passwords+do+not+match')
+
+        con = create_connection(DATABASE)
+
+        query = "INSERT INTO customer (fname, lname, email, password) VAlUES (?, ?, ?, ?)"
+
+        cur = con.cursor()
+        cur.execute(query, (fname, lname, email, password))
+        con.commit()
+        con.close()
+        return redirect('login')
+
     return render_template('signup.html')
 
 
