@@ -3,7 +3,7 @@
 {% block pageheading %}Login{% endblock %}
 
 {% block main %}
-    <form class="myform">
+    <form class="myform" method="POST">
     <div>
     <div class="form-group">
         <div class="form-label">Email:</div>
@@ -18,7 +18,11 @@
         <div class="form-element"><input type="submit" value="Login"></div>
     </div>
     </div>
-    <p>If you dont have an account, please <a href="/signup">sign up</a> </p>
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+    <p>If you don't have an account, please <a href="/signup">sign up</a> </p>
+
     </form>
 
 {% endblock %}
