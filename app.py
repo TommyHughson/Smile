@@ -1,10 +1,11 @@
 import sqlite3
 from flask import Flask, render_template, request, redirect, session
 from flask_bcrypt import Bcrypt
+from datetime import datetime
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
-app.secret_key = 'alkjaslkgjwleakhg lkwhlhwlklkhw'
+app.secret_key = "alkjaslkgjwleakhg lkwhlhwlklkhw"
 DATABASE = r"C:\Users\18217\OneDrive - Wellington College\13DTS\Smile\smile.db"
 
 
@@ -42,12 +43,31 @@ def render_homepage():
 def render_menu_page():
     con = create_connection(DATABASE)
 
-    query = "SELECT name, description, volume, price, image FROM product"
+    query = "SELECT name, description, volume, price, image, id FROM product"
     cur = con.cursor()  # creates a courser to write the query
     cur.execute(query)
     product_list = cur.fetchall()
     con.close()
     return render_template('menu.html', products=product_list, logged_in=is_logged_in())
+
+
+@app.route('/addtocart/<product_id>')
+def render_addtocart_page(product_id):
+    try:
+        product_id = int(product_id)
+    except ValueError:
+        return redirect('/menu?error=Invalid+product+id')
+    user_id = session['user_id']
+    timestamp = datetime.now()
+    print("{} would like to add {} to cart".format(user_id, product_id))
+
+    con = create_connection(DATABASE)
+    query = "INSERT INTO cart (customerid, productid, timestamp) values (?, ?, ?)"
+    cur = con.cursor()
+    cur.execute(query, (user_id, product_id, timestamp))
+    con.commit()
+    con.close()
+    return redirect(request.referrer)
 
 
 @app.route('/contact')
