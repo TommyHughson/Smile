@@ -1,10 +1,14 @@
 {% extends 'base.html' %}
 
 {% block pageheading %}
-menu
+Menu
 {% endblock %}
 
 {% block main %}
+<br>
+{% if logged_in %}
+    <div><h3>Welcome {{ session["fname"] }}, are you ready to order</h3></div>
+{% endif %}
 <div class="products">
 {% for product in products %}
     <div class="product-box">

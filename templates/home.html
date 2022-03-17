@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 
 {% block pageheading %}
-welcome
+    {% if logged_in %}
+        welcome {{ session['fname'] }}
+    {% else %}
+        Welcome
+    {% endif %}
 {% endblock %}
 
 {% block main %}

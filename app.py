@@ -47,7 +47,7 @@ def render_menu_page():
     cur.execute(query)
     product_list = cur.fetchall()
     con.close()
-    return render_template('menu.html', logged_in=is_logged_in())
+    return render_template('menu.html', products=product_list, logged_in=is_logged_in())
 
 
 @app.route('/contact')
@@ -57,9 +57,11 @@ def render_contact_page():
 
 @app.route('/login', methods=["GET", "POST"])
 def render_login_page():
+    if is_logged_in():
+        return redirect('/')
     print(request.form)
     if request.method == "POST":
-        email = request.form.get('email')
+        email = request.form.get('email').lower().strip()
         password = request.form.get('password')
 
         con = create_connection(DATABASE)
@@ -82,7 +84,8 @@ def render_login_page():
         session["email"] = email
         session["user_id"] = user_id
         session["fname"] = first_name
-        return redirect('/')
+        session["cart"] = []
+        return redirect('/menu')
 
     error = request.args.get('error')
     return render_template('login.html', logged_in=is_logged_in(), error=error)
@@ -98,6 +101,8 @@ def render_logout_page():
 
 @app.route('/signup', methods=["GET", "POST"])
 def render_signup_page():
+    if is_logged_in():
+        return redirect('/')
     if request.method == "POST":
         print(request.form)
         fname = request.form.get('fname').title().strip()
