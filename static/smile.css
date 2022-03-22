@@ -167,6 +167,10 @@ a, a:visited {
     padding: 0.3rem;
 }
 
+.button-menu {
+
+}
+
 .form-group input {
     padding: 0.3rem;
     width: 100%;
@@ -183,7 +187,7 @@ table {
 .cart-table td {
     padding: 0.2rem 1rem;
     text-align: center;
-    border: 1px solid #ddd;
+    border: 1px solid #dddd;
 }
 
 .cart-total {

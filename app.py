@@ -17,6 +17,7 @@ def create_connection(db_file):
     """
     try:
         connection = sqlite3.connect(db_file)
+        connection.execute('pragma foreign_keys=ON')
         return connection
     except sqlite3.Error as e:
         print(e)
@@ -56,7 +57,7 @@ def render_addtocart_page(product_id):
     try:
         product_id = int(product_id)
     except ValueError:
-        return redirect('/menu?error=Invalid+product+id')
+        return redirect("/menu?error=Invalid+product+id")
     user_id = session['user_id']
     timestamp = datetime.now()
     print("{} would like to add {} to cart".format(user_id, product_id))
@@ -64,10 +65,54 @@ def render_addtocart_page(product_id):
     con = create_connection(DATABASE)
     query = "INSERT INTO cart (customerid, productid, timestamp) values (?, ?, ?)"
     cur = con.cursor()
-    cur.execute(query, (user_id, product_id, timestamp))
+    try:
+        cur.execute(query, (user_id, product_id, timestamp))
+    except sqlite3.IntegrityError as e:
+        print(e)
+        return redirect('/menu?error=Something+went+wrong')
+
     con.commit()
     con.close()
     return redirect(request.referrer)
+
+
+@app.route('/cart')
+def render_cart_page():
+    if not is_logged_in():
+        return redirect("/login")
+    userid = session.get('user_id')
+    con = create_connection(DATABASE)
+    query = "SELECT productid FROM cart WHERE customerid=?"
+    cur = con.cursor()
+    cur.execute(query, (userid,))
+    product_ids = cur.fetchall()
+    for i in range(len(product_ids)):
+        product_ids[i] = product_ids[i][0]
+    unique_product_ids = list(set(product_ids))
+    for i in range(len(unique_product_ids)):
+        product_count = product_ids.count(unique_product_ids[i])
+        unique_product_ids[i] = [unique_product_ids[i], product_count]
+
+    query = "SELECT name, price FROM product where id=?;"
+    for item in unique_product_ids:
+        cur.execute(query, (item[0],))
+        item_details = cur.fetchall()
+        item.append(item_details[0][0])
+        item.append(item_details[0][1])
+    con.close()
+    return render_template('cart.html', cart_data=unique_product_ids, logged_in=is_logged_in())
+
+
+@app.route('/removefromcart/<product_id>')
+def render_remove_from_cart(product_id):
+    print("Remove:", product_id)
+    query = "Delete FROM cart WHERE productid=?"
+    con = create_connection(DATABASE)
+    cur = con.cursor()
+    cur.execute(query, (product_id,))
+    con.commit()
+    con.close()
+    return redirect('/cart')
 
 
 @app.route('/contact')
