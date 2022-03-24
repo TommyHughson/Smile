@@ -168,7 +168,10 @@ a, a:visited {
 }
 
 .button-menu {
-
+  border: none;
+  color: #1d1d88;
+  display: inline-block;
+  font-size: 1rem;
 }
 
 .form-group input {
